@@ -1,7 +1,8 @@
 import tkinter as tk
 from tkinter import messagebox
 
-from src.Point import Point
+from Point import Point
+
 
 
 class View(tk.Tk):
