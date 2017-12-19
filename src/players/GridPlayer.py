@@ -12,11 +12,11 @@ class GridPlayer:
         if points is not None:
             color = "red"
         size = ceil(sqrt(number_of_points))
-        points = set()
+        points = []
         width = settings['width'] / size
         height = settings['height'] / ceil(number_of_points / size)
         for i in range(size):
             for j in range(size):
                 if len(points) < number_of_points:
-                    points.add(Point(width * (j + 0.5), height * (i + 0.5), color))
+                    points.append(Point(width * (j + 0.5), height * (i + 0.5), color))
         return points

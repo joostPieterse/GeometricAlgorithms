@@ -20,12 +20,12 @@ class Game:
         points1 = player1.get_points(number_of_points=self.settings['number_of_points1'], settings=self.settings)
         points2 = player2.get_points(number_of_points=self.settings['number_of_points2'], settings=self.settings,
                                      points=points1)
-        self.points = points1.union(points2)
+        self.points = points1 + points2
 
 
 if __name__ == "__main__":
     initial_settings = {
-        "width": 1000,
+        "width": 1500,
         "height": 800,
         "number_of_points1": 10,
         "number_of_points2": 8,
