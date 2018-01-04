@@ -1,7 +1,6 @@
 import tkinter as tk
 from tkinter import messagebox
 
-
 class View(tk.Tk):
     def start(self):
         self.screen.delete('all')
@@ -20,6 +19,7 @@ class View(tk.Tk):
             self.game.settings['player2'] = self.player2.get()
             self.game.start()
             self.place_points(self.game.points)
+            self.draw_delaunay(self.game.delaunay_triangulation)
         except ValueError:
             messagebox.showinfo("Start failed", "Invalid screen width/height")
 
@@ -86,6 +86,15 @@ class View(tk.Tk):
             self.screen.create_oval(point.x - self.point_radius, point.y - self.point_radius,
                                     point.x + self.point_radius, point.y + self.point_radius,
                                     fill=point.color)
+
+    def draw_delaunay(self, delaunay_triangulation):
+        print(self.game.points)
+        print(delaunay_triangulation)
+        for triangle in delaunay_triangulation:
+            self.screen.create_line(triangle[0].x, triangle[0].y, triangle[1].x, triangle[1].y)
+            self.screen.create_line(triangle[0].x, triangle[0].y, triangle[2].x, triangle[2].y)
+            self.screen.create_line(triangle[1].x, triangle[1].y, triangle[2].x, triangle[2].y)
+
 
     def draw_faces(self, faces):
         pass

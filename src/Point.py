@@ -3,3 +3,6 @@ class Point:
         self.x = x
         self.y = y
         self.color = color
+
+    def __repr__(self):
+        return "(%s, %s)" % (self.x, self.y)
