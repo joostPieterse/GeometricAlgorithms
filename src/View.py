@@ -5,13 +5,6 @@ from src.Point import Point
 
 
 class View(tk.Tk):
-    def _resize(self):
-        try:
-            width = int(self.rectangle_width.get())
-            height = int(self.rectangle_height.get())
-            self.screen.config(width=width, height=height)
-        except ValueError:
-            messagebox.showinfo("Resize failed", "Invalid screen width/height")
 
     def __init__(self):
         super().__init__()
@@ -38,6 +31,14 @@ class View(tk.Tk):
 
         self.resize_button = tk.Button(self.right_frame, text="Reset", command=self.reset)
         self.resize_button.grid(row=4)
+
+    def _resize(self):
+        try:
+            width = int(self.rectangle_width.get())
+            height = int(self.rectangle_height.get())
+            self.screen.config(width=width, height=height)
+        except ValueError:
+            messagebox.showinfo("Resize failed", "Invalid screen width/height")
 
     def resize(self, width, height):
         self.screen.config(width=width, height=height)
