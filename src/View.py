@@ -4,30 +4,36 @@ from tkinter import messagebox
 class View(tk.Tk):
     def start(self):
         self.screen.delete('all')
-        try:
-            width = int(self.rectangle_width.get())
-            height = int(self.rectangle_height.get())
-            self.game.settings['width'] = width
-            self.game.settings['height'] = height
-            self.screen.config(width=width, height=height)
-            num_p1 = int(self.num_points1.get())
-            num_p2 = int(self.num_points2.get())
-            self.game.settings['number_of_points1'] = num_p1
-            self.game.settings['number_of_points2'] = num_p2
+        #try:
+        width = int(self.rectangle_width.get())
+        height = int(self.rectangle_height.get())
+        self.game.settings['width'] = width
+        self.game.settings['height'] = height
+        self.screen.config(width=width, height=height)
+        num_p1 = int(self.num_points1.get())
+        num_p2 = int(self.num_points2.get())
+        self.game.settings['number_of_points1'] = num_p1
+        self.game.settings['number_of_points2'] = num_p2
 
-            self.game.settings['player1'] = self.player1.get()
-            self.game.settings['player2'] = self.player2.get()
-            self.game.start()
-            self.place_points(self.game.points)
-            self.draw_delaunay(self.game.delaunay_triangulation)
-        except ValueError:
-            messagebox.showinfo("Start failed", "Invalid screen width/height")
-
+        self.game.settings['player1'] = self.player1.get()
+        self.game.settings['player2'] = self.player2.get()
+        self.game.start()
+        self.place_points(self.game.points)
+        self.draw_delaunay(self.game.delaunay_triangulation)
+        #except ValueError:
+        #    messagebox.showinfo("Start failed", "Invalid screen width/height")
+    
+    def prev(self):
+        self.screen.delete('all')
+        self.game.prev()
+        self.place_points(self.game.points)
+        self.draw_delaunay(self.game.delaunay_triangulation)
+    
     def __init__(self, game):
         super().__init__()
         self.game = game
         self.title("Voronoi game")
-        self.state('zoomed')
+        self.state('normal')
         self.point_radius = 2
 
         self.screen = tk.Canvas(self, bg="white", width=self.game.settings['width'],
@@ -69,6 +75,8 @@ class View(tk.Tk):
 
         self.start_button = tk.Button(self.right_frame, text="Start game", command=self.start)
         self.start_button.grid(row=6)
+        self.prev_button = tk.Button(self.right_frame, text="Previous", command=self.prev)
+        self.prev_button.grid(row=7)
 
     def _resize(self):
         try:

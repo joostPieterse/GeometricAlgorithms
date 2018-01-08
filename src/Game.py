@@ -11,8 +11,7 @@ class Game:
 
         # Delaunay triangulations
         self.delaunay_triangulation = []
-
-    def start(self):
+        
         if self.settings['player1'] == "grid":
             player1 = GridPlayer()
         else:
@@ -25,7 +24,15 @@ class Game:
         points2 = player2.get_points(number_of_points=self.settings['number_of_points2'], settings=self.settings,
                                      points=points1)
         self.points = points1 + points2
-        self.delaunay_triangulation = Delaunay.computeDelaunay(self.points)
+        self.n = 0
+
+    def start(self):
+        self.n = self.n + 1
+        self.delaunay_triangulation = Delaunay.computeDelaunay(self.points[0:self.n])
+    
+    def prev(self):
+        self.n = self.n - 1
+        self.delaunay_triangulation = Delaunay.computeDelaunay(self.points[0:self.n])
 
 if __name__ == "__main__":
     initial_settings = {
