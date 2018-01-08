@@ -1,5 +1,6 @@
 import tkinter as tk
 from tkinter import messagebox
+import math
 
 class View(tk.Tk):
     def start(self):
@@ -10,18 +11,20 @@ class View(tk.Tk):
             self.game.settings['width'] = width
             self.game.settings['height'] = height
             self.screen.config(width=width, height=height)
-            num_p1 = int(self.num_points1.get())
-            num_p2 = int(self.num_points2.get())
-            self.game.settings['number_of_points1'] = num_p1
-            self.game.settings['number_of_points2'] = num_p2
-
-            self.game.settings['player1'] = self.player1.get()
-            self.game.settings['player2'] = self.player2.get()
-            self.game.start()
-            self.place_points(self.game.points)
-            self.draw_delaunay(self.game.delaunay_triangulation)
         except ValueError:
             messagebox.showinfo("Start failed", "Invalid screen width/height")
+            return
+        num_p1 = int(self.num_points1.get())
+        num_p2 = int(self.num_points2.get())
+        self.game.settings['number_of_points1'] = num_p1
+        self.game.settings['number_of_points2'] = num_p2
+
+        self.game.settings['player1'] = self.player1.get()
+        self.game.settings['player2'] = self.player2.get()
+        self.game.start()
+        self.draw_points(self.game.points)
+        self.draw_delaunay(self.game.delaunay_triangulation)
+        #self.draw_voronoi(self.game.voronoi_diagram)
 
     def __init__(self, game):
         super().__init__()
@@ -81,20 +84,29 @@ class View(tk.Tk):
     def resize(self, width, height):
         self.screen.config(width=width, height=height)
 
-    def place_points(self, points):
+    def draw_points(self, points):
         for point in points:
             self.screen.create_oval(point.x - self.point_radius, point.y - self.point_radius,
                                     point.x + self.point_radius, point.y + self.point_radius,
                                     fill=point.color)
 
     def draw_delaunay(self, delaunay_triangulation):
-        print(self.game.points)
-        print(delaunay_triangulation)
         for triangle in delaunay_triangulation:
             self.screen.create_line(triangle[0].x, triangle[0].y, triangle[1].x, triangle[1].y)
             self.screen.create_line(triangle[0].x, triangle[0].y, triangle[2].x, triangle[2].y)
             self.screen.create_line(triangle[1].x, triangle[1].y, triangle[2].x, triangle[2].y)
 
 
-    def draw_faces(self, faces):
-        pass
+    def draw_voronoi(self, faces):
+        for point, face in faces.items():
+            points = set()
+            for edge in face:
+                points.add(edge[0])
+                points.add(edge[1])
+            coordinates = [p for p in points]
+            coordinates.sort(key=lambda p: math.atan2(point.y - p[1], point.x - p[0]))
+            coordinates.append(coordinates[0])
+            print("coordinates for drawing", point, coordinates)
+            self.screen.create_polygon(coordinates, outline='green', fill=point.color, stipple='gray25')
+
+

@@ -3,6 +3,7 @@ from View import View
 from players.GridPlayer import GridPlayer
 from players.RandomPlayer import RandomPlayer
 import Delaunay
+import Voronoi
 
 class Game:
     def __init__(self, initial_settings):
@@ -26,6 +27,14 @@ class Game:
                                      points=points1)
         self.points = points1 + points2
         self.delaunay_triangulation = Delaunay.computeDelaunay(self.points)
+        point1 = Point(350, 100, "blue")
+        point2 = Point(600, 500, "red")
+        point3 = Point(920, 200, "red")
+        point4 = Point(1200, 600, "blue")
+        self.points = [point1, point2, point3, point4]
+        print("Points:", self.points)
+        self.delaunay_triangulation = [(point1, point2, point3), (point2, point3, point4)]
+        self.voronoi_diagram = Voronoi.computeVoronoi(self.delaunay_triangulation, self.settings['width'], self.settings['height'])
 
 if __name__ == "__main__":
     initial_settings = {
