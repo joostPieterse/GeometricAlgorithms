@@ -8,6 +8,8 @@ class GridPlayer:
         self.color = "blue"
 
     def get_points(self, number_of_points, settings, points=None):
+        if number_of_points == 0:
+            return []
         color = "blue"
         if points is not None:
             color = "red"
