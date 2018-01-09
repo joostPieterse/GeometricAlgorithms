@@ -30,6 +30,8 @@ class View(tk.Tk):
         self.draw_points(self.game.points)
         #self.draw_delaunay(self.game.delaunay_triangulation)
         self.draw_voronoi(self.game.voronoi_diagram)
+        self.red_area_label.configure(text="red area: %s%%" % round(self.game.voronoi_areas['red'], 2))
+        self.blue_area_label.configure(text="blue area: %s%%" % round(self.game.voronoi_areas['blue'], 2))
         logging.info("Done")
 
 
@@ -54,6 +56,7 @@ class View(tk.Tk):
         self.right_frame.pack(side=tk.RIGHT)
         self.screen.pack(side=tk.LEFT)
 
+
         tk.Label(self.right_frame, text="Rectangle width: ").grid(row=0, column=0)
         tk.Label(self.right_frame, text="Rectangle height: ").grid(row=1, column=0)
         self.rectangle_width = tk.Entry(self.right_frame)
@@ -63,8 +66,8 @@ class View(tk.Tk):
         self.rectangle_height.insert(tk.END, self.game.settings['height'])
         self.rectangle_height.grid(row=1, column=1)
 
-        tk.Label(self.right_frame, text="Number of points for player 1: ").grid(row=2, column=0)
-        tk.Label(self.right_frame, text="Number of points for player 2: ").grid(row=3, column=0)
+        tk.Label(self.right_frame, text="Number of points for player 1 (red): ").grid(row=2, column=0)
+        tk.Label(self.right_frame, text="Number of points for player 2 (blue): ").grid(row=3, column=0)
         self.num_points1 = tk.Entry(self.right_frame)
         self.num_points1.insert(tk.END, self.game.settings['number_of_points1'])
         self.num_points1.grid(row=2, column=1)
@@ -72,8 +75,8 @@ class View(tk.Tk):
         self.num_points2.insert(tk.END, self.game.settings['number_of_points2'])
         self.num_points2.grid(row=3, column=1)
 
-        tk.Label(self.right_frame, text="Select player 1: ").grid(row=4, column=0)
-        tk.Label(self.right_frame, text="Select player 2: ").grid(row=5, column=0)
+        tk.Label(self.right_frame, text="Select player 1 (red): ").grid(row=4, column=0)
+        tk.Label(self.right_frame, text="Select player 2 (blue): ").grid(row=5, column=0)
         self.player1 = tk.StringVar(self.right_frame)
         self.player1_dropdown = tk.OptionMenu(self.right_frame, self.player1, *["random", "grid"])
         self.player1.set(self.game.settings['player1'])
@@ -87,6 +90,10 @@ class View(tk.Tk):
         self.start_button.grid(row=6)
         self.prev_button = tk.Button(self.right_frame, text="Previous", command=self.prev)
         self.prev_button.grid(row=7)
+        self.red_area_label = tk.Label(self.right_frame, text="red area: %s" % 0, fg="red")
+        self.red_area_label.grid(row=8, pady=(100, 0))
+        self.blue_area_label = tk.Label(self.right_frame, text="blue area: %s" % 0, fg="blue")
+        self.blue_area_label.grid(row=9)
 
     def _resize(self):
         try:

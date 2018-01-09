@@ -148,3 +148,33 @@ def computeVoronoi(input_triangles, screen_width, screen_height):
         faces[point] = face
     return faces
 
+
+def get_area_triangle(point1, point2, point3):
+    a = math.sqrt((point1[0] - point2[0]) ** 2 + (point1[1] - point2[1]) ** 2)
+    b = math.sqrt((point1[0] - point3[0]) ** 2 + (point1[1] - point3[1]) ** 2)
+    c = math.sqrt((point2[0] - point3[0]) ** 2 + (point2[1] - point3[1]) ** 2)
+    s = (a+b+c) / 2.0
+    return math.sqrt(s * (s - a) * (s - b) * (s - c))
+
+
+def get_area(point, face):
+    points = [p for p in face]
+    points.sort(key=lambda p: math.atan2(point.y - p[1], point.x - p[0]))
+    area = 0
+    for i in range(len(points) - 2):
+        area += get_area_triangle(points[-1], points[i], points[i + 1])
+    return area
+
+
+def get_area_percentages(faces, screen_width, screen_height):
+    areas = {}
+    for point, voronoi_points in faces.items():
+        if point.color in areas:
+            areas[point.color] += get_area(point, voronoi_points)
+        else:
+            areas[point.color] = get_area(point, voronoi_points)
+    for color, area in areas.items():
+        areas[color] *= 100 / (screen_width * screen_height)
+    return areas
+
+

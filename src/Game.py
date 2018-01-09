@@ -18,6 +18,7 @@ class Game:
         # Delaunay triangulations
         self.delaunay_triangulation = []
         self.n = 0
+        self.voronoi_areas = {"red": 0, "blue": 0}
 
     def start(self):
         if self.settings['player1'] == "grid":
@@ -38,6 +39,7 @@ class Game:
         self.delaunay_triangulation = Delaunay.computeDelaunay(self.points)
         logging.info("Compute Voronoi diagram")
         self.voronoi_diagram = Voronoi.computeVoronoi(self.delaunay_triangulation, self.settings['width'], self.settings['height'])
+        self.voronoi_areas = Voronoi.get_area_percentages(self.voronoi_diagram, self.settings['width'], self.settings['height'])
 
 
     def prev(self):

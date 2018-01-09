@@ -7,7 +7,7 @@ class RandomPlayer:
         self.color = "blue"
 
     def get_points(self, number_of_points, settings, points=None):
-        color = "blue"
+        color = "red"
         if points is not None:
-            color = "red"
+            color = "blue"
         return [Point(uniform(0, settings['width']), uniform(0, settings['height']), color) for i in range(number_of_points)]
