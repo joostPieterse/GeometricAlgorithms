@@ -1,5 +1,6 @@
 from Point import Point
 import Delaunay
+import math
 
 def get_edges(triangle):
     return [(triangle[0], triangle[1]), (triangle[0], triangle[2]), (triangle[1], triangle[2])]
@@ -16,6 +17,20 @@ def get_circumcenter(triangle):
                               (triangle[1].x ** 2 + triangle[1].y ** 2) * (triangle[0].x - triangle[2].x) +
                               (triangle[2].x ** 2 + triangle[2].y ** 2) * (triangle[1].x - triangle[0].x))
     return circumcenter_x, circumcenter_y
+
+
+def get_length(edge):
+    return math.sqrt((edge[0].x - edge[1].x) ** 2 + (edge[0].y - edge[1].y) ** 2)
+
+def get_longest_edge(triangle):
+    largest_length = get_length((triangle[0], triangle[1]))
+    largest_edge = (triangle[0], triangle[1])
+    if get_length((triangle[0], triangle[2])) > largest_length:
+        largest_edge = (triangle[0], triangle[2])
+        largest_length = get_length((triangle[0], triangle[2]))
+    if get_length((triangle[1], triangle[2])) > largest_length:
+        largest_edge = (triangle[1], triangle[2])
+    return largest_edge
 
 
 def computeVoronoi(input_triangles, screen_width, screen_height):
@@ -44,6 +59,7 @@ def computeVoronoi(input_triangles, screen_width, screen_height):
         screen_intersections = []
         for edge in edges:
             triangles = edge2triangles[edge]
+            print("longest edge", triangles[0], get_longest_edge(triangles[0]))
             if len(triangles) == 2:
                 face.append((get_circumcenter(triangles[0]), get_circumcenter(triangles[1])))
                 print("No screen intersection", (get_circumcenter(triangles[0]), get_circumcenter(triangles[1])))
@@ -52,6 +68,10 @@ def computeVoronoi(input_triangles, screen_width, screen_height):
                 center = get_circumcenter(triangles[0])
                 # intersection between voronoi edge and delaunay edge
                 delaunay_intersect = ((edge[0].x + edge[1].x) / 2, (edge[0].y + edge[1].y) / 2)
+                # Change direction of the voronoi edge if it is outside the triangle and the longest edge
+                if not Delaunay.pointInTriangle(Point(center[0], center[1], ''), triangles[0]) and edge == get_longest_edge(triangles[0]):
+                    print("changing", edge)
+                    delaunay_intersect = (center[0] + 2 * (center[0] - delaunay_intersect[0]), center[1] + 2 * (center[1] - delaunay_intersect[1]))
                 # find intersection between voronoi edge and screen
                 if center[1] < delaunay_intersect[1]:
                     screen_intersect_x = center[0] + (screen_height - delaunay_intersect[1]) / (delaunay_intersect[1] - center[1]) * (delaunay_intersect[0] - center[0])

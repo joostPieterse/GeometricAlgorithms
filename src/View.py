@@ -24,7 +24,7 @@ class View(tk.Tk):
         self.game.start()
         self.draw_points(self.game.points)
         self.draw_delaunay(self.game.delaunay_triangulation)
-        #self.draw_voronoi(self.game.voronoi_diagram)
+        self.draw_voronoi(self.game.voronoi_diagram)
 
     def __init__(self, game):
         super().__init__()

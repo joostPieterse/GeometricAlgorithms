@@ -30,7 +30,7 @@ class Game:
         point1 = Point(350, 100, "blue")
         point2 = Point(600, 500, "red")
         point3 = Point(920, 200, "red")
-        point4 = Point(1200, 600, "blue")
+        point4 = Point(1200, 400, "blue")
         self.points = [point1, point2, point3, point4]
         print("Points:", self.points)
         self.delaunay_triangulation = [(point1, point2, point3), (point2, point3, point4)]
