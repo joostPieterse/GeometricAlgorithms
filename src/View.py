@@ -99,11 +99,8 @@ class View(tk.Tk):
 
     def draw_voronoi(self, faces):
         for point, face in faces.items():
-            points = set()
-            for edge in face:
-                points.add(edge[0])
-                points.add(edge[1])
-            coordinates = [p for p in points]
+            voronoi_points = faces[point]
+            coordinates = [p for p in voronoi_points]
             coordinates.sort(key=lambda p: math.atan2(point.y - p[1], point.x - p[0]))
             coordinates.append(coordinates[0])
             print("coordinates for drawing", point, coordinates)

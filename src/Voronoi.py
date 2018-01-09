@@ -53,105 +53,96 @@ def computeVoronoi(input_triangles, screen_width, screen_height):
             point2edges[edge[1]].append(edge)
         else:
             point2edges[edge[1]] = [edge]
+    point2screen_corners = {}
+    screen_corners = [(0,0), (0, screen_height), (screen_width, screen_height), (screen_width, 0)]
+    for screen_corner in screen_corners:
+        closest_point = min(point2edges, key=lambda p: (p.x - screen_corner[0]) ** 2 + (p.y - screen_corner[1]) ** 2)
+        if closest_point in point2screen_corners:
+            point2screen_corners[closest_point].append(screen_corner)
+        else:
+            point2screen_corners[closest_point] = [screen_corner]
     faces = {}
     for point, edges in point2edges.items():
-        face = []
-        screen_intersections = []
+        face = set()
+        for corner in point2screen_corners.get(point, []):
+            face.add(corner)
         for edge in edges:
             triangles = edge2triangles[edge]
-            print("longest edge", triangles[0], get_longest_edge(triangles[0]))
             if len(triangles) == 2:
-                face.append((get_circumcenter(triangles[0]), get_circumcenter(triangles[1])))
-                print("No screen intersection", (get_circumcenter(triangles[0]), get_circumcenter(triangles[1])))
-            # if there is only one triangle, the voronoi edge will intersect with the screen edge
+                center0 = get_circumcenter(triangles[0])
+                center1 = get_circumcenter(triangles[1])
+                if 0 <= center0[0] <= screen_width and 0 <= center0[1] <= screen_height:
+                    face.add(center0)
+                if 0 <= center1[0] <= screen_width and 0 <= center1[1] <= screen_height:
+                    face.add(center1)
+                # add possible intersections
+                if (center0[0] < 0) != (center1[0] < 0):
+                    screen_intersect_y = center0[1] + (0 - center0[0]) / (center1[0] - center0[0]) * (center1[1] - center0[1])
+                    if 0 < screen_intersect_y < screen_height:
+                        face.add((0, screen_intersect_y))
+                if (center0[0] > screen_width) != (center1[0] > screen_width):
+                    screen_intersect_y = center0[1] + (screen_width - center0[0]) / (center1[0] - center0[0]) * (center1[1] - center0[1])
+                    if 0 < screen_intersect_y < screen_height:
+                        face.add((screen_width, screen_intersect_y))
+                if (center0[1] < 0) != (center1[1] < 0):
+                    screen_intersect_x = center0[0] + (0 - center0[1]) / (center1[1] - center0[1]) * (center1[0] - center0[0])
+                    if 0 < screen_intersect_x < screen_width:
+                        face.add((screen_intersect_x, 0))
+                if (center0[1] > screen_height) != (center1[1] > screen_height):
+                    screen_intersect_x = center0[0] + (screen_height - center0[1]) / (center1[1] - center0[1]) * (center1[0] - center0[0])
+                    if 0 < screen_intersect_x < screen_width:
+                        face.add((screen_intersect_x, screen_height))
             elif len(triangles) == 1:
                 center = get_circumcenter(triangles[0])
+                if 0 <= center[0] <= screen_width and 0 <= center[1] <= screen_height:
+                    face.add(center)
                 # intersection between voronoi edge and delaunay edge
                 delaunay_intersect = ((edge[0].x + edge[1].x) / 2, (edge[0].y + edge[1].y) / 2)
                 # Change direction of the voronoi edge if it is outside the triangle and the longest edge
                 if not Delaunay.pointInTriangle(Point(center[0], center[1], ''), triangles[0]) and edge == get_longest_edge(triangles[0]):
-                    print("changing", edge)
                     delaunay_intersect = (center[0] + 2 * (center[0] - delaunay_intersect[0]), center[1] + 2 * (center[1] - delaunay_intersect[1]))
-                # find intersection between voronoi edge and screen
+                print(edge, delaunay_intersect)
+                if not (0 <= center[0] <= screen_width and 0 <= center[1] <= screen_height):
+                    print(center)
+                    if not (0 <= delaunay_intersect[0] <= screen_width and 0 <= delaunay_intersect[1] <= screen_height):
+                        continue
+                    if center[1] < 0:
+                        screen_intersect_x = center[0] + (0 - delaunay_intersect[1]) / (
+                        delaunay_intersect[1] - center[1]) * (delaunay_intersect[0] - center[0])
+                        if 0 <= screen_intersect_x <= screen_width:
+                            face.add((screen_intersect_x, 0))
+                    elif center[1] > screen_height:
+                        screen_intersect_x = center[0] + (screen_height - center[1]) / (delaunay_intersect[1] - center[1]) * (
+                        delaunay_intersect[0] - center[0])
+                        if 0 <= screen_intersect_x <= screen_width:
+                            face.add((screen_intersect_x, screen_height))
+                    if center[0] < 0:
+                        screen_intersect_y = center[1] + (0 - delaunay_intersect[0]) / (
+                        delaunay_intersect[0] - center[0]) * (delaunay_intersect[1] - center[1])
+                        if 0 < screen_intersect_y < screen_height:
+                            face.add((0, screen_intersect_y))
+                    elif center[0] > screen_width:
+                        screen_intersect_y = center[1] + (screen_width - center[0]) / (delaunay_intersect[0] - center[0]) * (
+                        delaunay_intersect[1] - center[1])
+                        if 0 < screen_intersect_y < screen_height:
+                            face.add((screen_width, screen_intersect_y))
+                # find intersection of voronoi edge going out of the screen
                 if center[1] < delaunay_intersect[1]:
-                    screen_intersect_x = center[0] + (screen_height - delaunay_intersect[1]) / (delaunay_intersect[1] - center[1]) * (delaunay_intersect[0] - center[0])
+                    screen_intersect_x = center[0] + (screen_height - center[1]) / (delaunay_intersect[1] - center[1]) * (delaunay_intersect[0] - center[0])
                     if 0 <= screen_intersect_x <= screen_width:
-                        face.append((center, (screen_intersect_x, screen_height)))
-                        screen_intersections.append((screen_intersect_x, screen_height))
-                        print("Point", point, "center", center, "delaunay intersect", delaunay_intersect, "x intersect", (center, (screen_intersect_x, screen_height)))
+                        face.add((screen_intersect_x, screen_height))
                 elif center[1] > delaunay_intersect[1]:
                     screen_intersect_x = center[0] + (0 - center[1]) / (delaunay_intersect[1] - center[1]) * (delaunay_intersect[0] - center[0])
                     if 0 <= screen_intersect_x <= screen_width:
-                        face.append((center, (screen_intersect_x, 0)))
-                        screen_intersections.append((screen_intersect_x, 0))
-                        print("Point", point, "center", center, "delaunay intersect", delaunay_intersect, "x intersect", (center, (screen_intersect_x, 0)))
+                        face.add((screen_intersect_x, 0))
                 if center[0] < delaunay_intersect[0]:
-                    screen_intersect_y = center[1] + (screen_width - delaunay_intersect[0]) / (delaunay_intersect[0] - center[0]) * (delaunay_intersect[1] - center[1])
+                    screen_intersect_y = center[1] + (screen_width - center[0]) / (delaunay_intersect[0] - center[0]) * (delaunay_intersect[1] - center[1])
                     if 0 < screen_intersect_y < screen_height:
-                        face.append((center, (screen_width, screen_intersect_y)))
-                        screen_intersections.append( (screen_width, screen_intersect_y))
-                        print("Point", point, "center", center, "delaunay intersect", delaunay_intersect, "y intersect", (center, (screen_width, screen_intersect_y)))
+                        face.add((screen_width, screen_intersect_y))
                 elif center[0] > delaunay_intersect[0]:
                     screen_intersect_y = center[1] + (0 - center[0]) / (delaunay_intersect[0] - center[0]) * (delaunay_intersect[1] - center[1])
                     if 0 < screen_intersect_y < screen_height:
-                        face.append((center, (0, screen_intersect_y)))
-                        screen_intersections.append((0, screen_intersect_y))
-                        print("Point", point, "center", center, "delaunay intersect", delaunay_intersect, "y intersect", (center, (0, screen_intersect_y)))
-        if len(screen_intersections) == 2:
-            a = screen_intersections[0]
-            b = screen_intersections[1]
-            # intersections are on the same screen edge
-            if (a[0] == 0 and b[0] == 0) or (a[1] == 0 and b[1] == 0) or (a[0] == screen_width and b[0] == screen_width) or (a[1] == screen_height and b[1] == screen_height):
-                face.append((a, b))
-            # intersections are on opposite screen edges
-            elif a[0] == 0 and b[0] == screen_width:
-                if point.isAbove(a, b):
-                    face.append((a, (0, 0)))
-                    face.append(((0,0), (screen_width, 0)))
-                    face.append(((screen_width, 0), b))
-                else:
-                    face.append((a, (0, screen_height)))
-                    face.append(((0,0), (screen_width, 0)))
-                    face.append(((screen_width, screen_height), b))
-            elif (a[0] == screen_width and b[0] == 0):
-                if point.isAbove(a, b):
-                    face.append((b, (0, 0)))
-                    face.append(((0,0), (screen_width, 0)))
-                    face.append(((screen_width, 0), a))
-                else:
-                    face.append((b, (0, screen_height)))
-                    face.append(((0,0), (screen_width, 0)))
-                    face.append(((screen_width, screen_height), a))
-            elif a[1] == 0 and b[1] == screen_height:
-                if point.isRightOf(a, b):
-                    face.append((a, (screen_width, 0)))
-                    face.append(((screen_width,0), (screen_width, screen_height)))
-                    face.append(((screen_width, screen_height), b))
-                else:
-                    face.append((a, (0, 0)))
-                    face.append(((0,0), (0, screen_height)))
-                    face.append(((0, screen_height), b))
-            elif a[1] == screen_height and b[1] == 0:
-                if point.isRightOf(a, b):
-                    face.append((b, (screen_width, 0)))
-                    face.append(((screen_width,0), (screen_width, screen_height)))
-                    face.append(((screen_width, screen_height), a))
-                else:
-                    face.append((b, (0, 0)))
-                    face.append(((0,0), (0, screen_height)))
-                    face.append(((0, screen_height), a))
-            # one horizontal screen edge and one vertical is intersected otherwise
-            else:
-                corner_x = screen_width
-                if a[0] == 0 or b[0] == 0:
-                    corner_x = 0
-                corner_y = screen_height
-                if a[1] == 0 or b[1] == 0:
-                    corner_y = 0
-                face.append(((corner_x, corner_y), a))
-                face.append(((corner_x, corner_y), b))
-
-
+                        face.add((0, screen_intersect_y))
         faces[point] = face
     print("Faces", faces)
     return faces

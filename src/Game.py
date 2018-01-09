@@ -27,10 +27,10 @@ class Game:
                                      points=points1)
         self.points = points1 + points2
         self.delaunay_triangulation = Delaunay.computeDelaunay(self.points)
-        point1 = Point(350, 100, "blue")
-        point2 = Point(600, 500, "red")
-        point3 = Point(920, 200, "red")
-        point4 = Point(1200, 400, "blue")
+        point1 = Point(300, 700, "blue")
+        point2 = Point(650, 600, "red")
+        point3 = Point(920, 670, "blue")
+        point4 = Point(1100, 610, "red")
         self.points = [point1, point2, point3, point4]
         print("Points:", self.points)
         self.delaunay_triangulation = [(point1, point2, point3), (point2, point3, point4)]
