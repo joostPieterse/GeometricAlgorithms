@@ -103,29 +103,27 @@ def computeVoronoi(input_triangles, screen_width, screen_height):
                 # Change direction of the voronoi edge if it is outside the triangle and the longest edge
                 if not Delaunay.pointInTriangle(Point(center[0], center[1], ''), triangles[0]) and edge == get_longest_edge(triangles[0]):
                     delaunay_intersect = (center[0] + 2 * (center[0] - delaunay_intersect[0]), center[1] + 2 * (center[1] - delaunay_intersect[1]))
-                #print(edge, delaunay_intersect)
                 if not (0 <= center[0] <= screen_width and 0 <= center[1] <= screen_height):
-                    #print(center)
                     if not (0 <= delaunay_intersect[0] <= screen_width and 0 <= delaunay_intersect[1] <= screen_height):
                         continue
                     if center[1] < 0:
-                        screen_intersect_x = center[0] + (0 - delaunay_intersect[1]) / (
-                        delaunay_intersect[1] - center[1]) * (delaunay_intersect[0] - center[0])
+                        screen_intersect_x = center[0] + (center[1]) / (
+                        center[1] - delaunay_intersect[1]) * (delaunay_intersect[0] - center[0])
                         if 0 <= screen_intersect_x <= screen_width:
                             face.add((screen_intersect_x, 0))
                     elif center[1] > screen_height:
-                        screen_intersect_x = center[0] + (screen_height - center[1]) / (delaunay_intersect[1] - center[1]) * (
-                        delaunay_intersect[0] - center[0])
+                        screen_intersect_x = center[0] + (center[1] - screen_height) / (
+                        center[1] - delaunay_intersect[1]) * (delaunay_intersect[0] - center[0])
                         if 0 <= screen_intersect_x <= screen_width:
                             face.add((screen_intersect_x, screen_height))
                     if center[0] < 0:
-                        screen_intersect_y = center[1] + (0 - delaunay_intersect[0]) / (
-                        delaunay_intersect[0] - center[0]) * (delaunay_intersect[1] - center[1])
+                        screen_intersect_y = center[1] + (center[0]) / (
+                        center[0] - delaunay_intersect[0]) * (delaunay_intersect[1] - center[1])
                         if 0 < screen_intersect_y < screen_height:
                             face.add((0, screen_intersect_y))
                     elif center[0] > screen_width:
-                        screen_intersect_y = center[1] + (screen_width - center[0]) / (delaunay_intersect[0] - center[0]) * (
-                        delaunay_intersect[1] - center[1])
+                        screen_intersect_y = center[1] + (center[0] - screen_width) / (
+                        center[0] - delaunay_intersect[0]) * (delaunay_intersect[1] - center[1])
                         if 0 < screen_intersect_y < screen_height:
                             face.add((screen_width, screen_intersect_y))
                 # find intersection of voronoi edge going out of the screen
@@ -153,7 +151,7 @@ def get_area_triangle(point1, point2, point3):
     a = math.sqrt((point1[0] - point2[0]) ** 2 + (point1[1] - point2[1]) ** 2)
     b = math.sqrt((point1[0] - point3[0]) ** 2 + (point1[1] - point3[1]) ** 2)
     c = math.sqrt((point2[0] - point3[0]) ** 2 + (point2[1] - point3[1]) ** 2)
-    s = (a+b+c) / 2.0
+    s = (a + b + c) / 2
     return math.sqrt(s * (s - a) * (s - b) * (s - c))
 
 
@@ -167,12 +165,9 @@ def get_area(point, face):
 
 
 def get_area_percentages(faces, screen_width, screen_height):
-    areas = {}
+    areas = {"blue": 0, "red": 0}
     for point, voronoi_points in faces.items():
-        if point.color in areas:
-            areas[point.color] += get_area(point, voronoi_points)
-        else:
-            areas[point.color] = get_area(point, voronoi_points)
+        areas[point.color] += get_area(point, voronoi_points)
     for color, area in areas.items():
         areas[color] *= 100 / (screen_width * screen_height)
     return areas
