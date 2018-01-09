@@ -12,6 +12,7 @@ class Game:
 
         # Delaunay triangulations
         self.delaunay_triangulation = []
+        self.n = 0
 
     def start(self):
         if self.settings['player1'] == "grid":
@@ -27,14 +28,12 @@ class Game:
                                      points=points1)
         self.points = points1 + points2
         self.delaunay_triangulation = Delaunay.computeDelaunay(self.points)
-        point1 = Point(300, 700, "blue")
-        point2 = Point(650, 600, "red")
-        point3 = Point(920, 670, "blue")
-        point4 = Point(1100, 610, "red")
-        self.points = [point1, point2, point3, point4]
-        print("Points:", self.points)
-        self.delaunay_triangulation = [(point1, point2, point3), (point2, point3, point4)]
         self.voronoi_diagram = Voronoi.computeVoronoi(self.delaunay_triangulation, self.settings['width'], self.settings['height'])
+
+
+    def prev(self):
+        self.n = self.n - 1
+        self.delaunay_triangulation = Delaunay.computeDelaunay(self.points[0:self.n])
 
 if __name__ == "__main__":
     initial_settings = {

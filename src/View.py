@@ -26,12 +26,19 @@ class View(tk.Tk):
         self.draw_delaunay(self.game.delaunay_triangulation)
         self.draw_voronoi(self.game.voronoi_diagram)
 
+
+    def prev(self):
+        self.screen.delete('all')
+        self.game.prev()
+        self.place_points(self.game.points)
+        self.draw_delaunay(self.game.delaunay_triangulation)
+
     def __init__(self, game):
         super().__init__()
         self.game = game
         self.title("Voronoi game")
         self.state('zoomed')
-        self.point_radius = 2
+        self.point_radius = 4
 
         self.screen = tk.Canvas(self, bg="white", width=self.game.settings['width'],
                                 height=self.game.settings['height'])
@@ -72,6 +79,8 @@ class View(tk.Tk):
 
         self.start_button = tk.Button(self.right_frame, text="Start game", command=self.start)
         self.start_button.grid(row=6)
+        self.prev_button = tk.Button(self.right_frame, text="Previous", command=self.prev)
+        self.prev_button.grid(row=7)
 
     def _resize(self):
         try:
