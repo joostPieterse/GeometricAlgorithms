@@ -1,9 +1,14 @@
 import tkinter as tk
 from tkinter import messagebox
 import math
+import logging
+import sys
+
+logging.basicConfig(level=logging.INFO, stream=sys.stdout, format="%(asctime)s - %(message)s")
 
 class View(tk.Tk):
     def start(self):
+        logging.info("Clicked start")
         self.screen.delete('all')
         try:
             width = int(self.rectangle_width.get())
@@ -25,6 +30,7 @@ class View(tk.Tk):
         self.draw_points(self.game.points)
         #self.draw_delaunay(self.game.delaunay_triangulation)
         self.draw_voronoi(self.game.voronoi_diagram)
+        logging.info("Done")
 
 
     def prev(self):
@@ -107,11 +113,12 @@ class View(tk.Tk):
 
 
     def draw_voronoi(self, faces):
+        logging.info("Draw voronoi diagram")
         for point, face in faces.items():
             voronoi_points = faces[point]
             coordinates = [p for p in voronoi_points]
             coordinates.sort(key=lambda p: math.atan2(point.y - p[1], point.x - p[0]))
             coordinates.append(coordinates[0])
-            self.screen.create_polygon(coordinates, outline='green', fill=point.color, stipple='gray25')
+            self.screen.create_polygon(coordinates, outline='purple', fill=point.color, stipple='gray25')
 
 

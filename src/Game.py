@@ -4,6 +4,11 @@ from players.GridPlayer import GridPlayer
 from players.RandomPlayer import RandomPlayer
 import Delaunay
 import Voronoi
+import logging
+import sys
+
+logging.basicConfig(level=logging.INFO, stream=sys.stdout, format="%(asctime)s - %(message)s")
+
 
 class Game:
     def __init__(self, initial_settings):
@@ -23,12 +28,15 @@ class Game:
             player2 = GridPlayer()
         else:
             player2 = RandomPlayer()
+        logging.info("Get player 1's points")
         points1 = player1.get_points(number_of_points=self.settings['number_of_points1'], settings=self.settings)
+        logging.info("Get player 2's points")
         points2 = player2.get_points(number_of_points=self.settings['number_of_points2'], settings=self.settings,
                                      points=points1)
         self.points = points1 + points2
-        #self.points = [Point(190, 646, "red"), Point(808, 629, "red"), Point(1033, 94, "blue"), Point(1139, 466, "blue")]
+        logging.info("Compute Delaunay triangulation")
         self.delaunay_triangulation = Delaunay.computeDelaunay(self.points)
+        logging.info("Compute Voronoi diagram")
         self.voronoi_diagram = Voronoi.computeVoronoi(self.delaunay_triangulation, self.settings['width'], self.settings['height'])
 
 

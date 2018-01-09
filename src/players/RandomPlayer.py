@@ -1,5 +1,5 @@
 from Point import Point
-from random import randint
+from random import uniform
 
 
 class RandomPlayer:
@@ -10,4 +10,4 @@ class RandomPlayer:
         color = "blue"
         if points is not None:
             color = "red"
-        return [Point(randint(0, settings['width']), randint(0, settings['height']), color) for i in range(number_of_points)]
+        return [Point(uniform(0, settings['width']), uniform(0, settings['height']), color) for i in range(number_of_points)]
