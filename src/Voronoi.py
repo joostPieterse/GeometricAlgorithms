@@ -40,6 +40,8 @@ def computeVoronoi(input_triangles, screen_width, screen_height):
         for edge in get_edges(triangle):
             if edge in edge2triangles:
                 edge2triangles[edge].append(triangle)
+            elif (edge[1], edge[0]) in edge2triangles:
+                edge2triangles[(edge[1], edge[0])].append(triangle)
             else:
                 edge2triangles[edge] = [triangle]
     # for each point, list all incident edges
@@ -71,35 +73,29 @@ def computeVoronoi(input_triangles, screen_width, screen_height):
             if len(triangles) == 2:
                 center0 = get_circumcenter(triangles[0])
                 center1 = get_circumcenter(triangles[1])
-                print("center0", center0, "center1", center1)
                 if 0 <= center0[0] <= screen_width and 0 <= center0[1] <= screen_height:
                     face.add(center0)
                 if 0 <= center1[0] <= screen_width and 0 <= center1[1] <= screen_height:
                     face.add(center1)
                 # add possible intersections
                 if (center0[0] < 0) != (center1[0] < 0):
-                    print("oob", center0, center1)
                     screen_intersect_y = center0[1] + (0 - center0[0]) / (center1[0] - center0[0]) * (center1[1] - center0[1])
                     if 0 < screen_intersect_y < screen_height:
                         face.add((0, screen_intersect_y))
                 if (center0[0] > screen_width) != (center1[0] > screen_width):
-                    print("oob", center0, center1)
                     screen_intersect_y = center0[1] + (screen_width - center0[0]) / (center1[0] - center0[0]) * (center1[1] - center0[1])
                     if 0 < screen_intersect_y < screen_height:
                         face.add((screen_width, screen_intersect_y))
                 if (center0[1] < 0) != (center1[1] < 0):
-                    print("oob", center0, center1)
                     screen_intersect_x = center0[0] + (0 - center0[1]) / (center1[1] - center0[1]) * (center1[0] - center0[0])
                     if 0 < screen_intersect_x < screen_width:
                         face.add((screen_intersect_x, 0))
                 if (center0[1] > screen_height) != (center1[1] > screen_height):
-                    print("oob", center0, center1)
                     screen_intersect_x = center0[0] + (screen_height - center0[1]) / (center1[1] - center0[1]) * (center1[0] - center0[0])
                     if 0 < screen_intersect_x < screen_width:
                         face.add((screen_intersect_x, screen_height))
             elif len(triangles) == 1:
                 center = get_circumcenter(triangles[0])
-                print("center", center)
                 if 0 <= center[0] <= screen_width and 0 <= center[1] <= screen_height:
                     face.add(center)
                 # intersection between voronoi edge and delaunay edge
@@ -150,6 +146,5 @@ def computeVoronoi(input_triangles, screen_width, screen_height):
                     if 0 < screen_intersect_y < screen_height:
                         face.add((0, screen_intersect_y))
         faces[point] = face
-    print("Faces", faces)
     return faces
 

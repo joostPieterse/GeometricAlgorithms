@@ -27,6 +27,7 @@ class Game:
         points2 = player2.get_points(number_of_points=self.settings['number_of_points2'], settings=self.settings,
                                      points=points1)
         self.points = points1 + points2
+        #self.points = [Point(190, 646, "red"), Point(808, 629, "red"), Point(1033, 94, "blue"), Point(1139, 466, "blue")]
         self.delaunay_triangulation = Delaunay.computeDelaunay(self.points)
         self.voronoi_diagram = Voronoi.computeVoronoi(self.delaunay_triangulation, self.settings['width'], self.settings['height'])
 

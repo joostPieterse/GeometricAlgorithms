@@ -23,7 +23,7 @@ class View(tk.Tk):
         self.game.settings['player2'] = self.player2.get()
         self.game.start()
         self.draw_points(self.game.points)
-        self.draw_delaunay(self.game.delaunay_triangulation)
+        #self.draw_delaunay(self.game.delaunay_triangulation)
         self.draw_voronoi(self.game.voronoi_diagram)
 
 
@@ -112,7 +112,6 @@ class View(tk.Tk):
             coordinates = [p for p in voronoi_points]
             coordinates.sort(key=lambda p: math.atan2(point.y - p[1], point.x - p[0]))
             coordinates.append(coordinates[0])
-            print("coordinates for drawing", point, coordinates)
             self.screen.create_polygon(coordinates, outline='green', fill=point.color, stipple='gray25')
 
 
