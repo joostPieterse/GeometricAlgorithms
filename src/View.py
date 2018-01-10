@@ -82,7 +82,7 @@ class View(tk.Tk):
         self.player1.set(self.game.settings['player1'])
         self.player1_dropdown.grid(row=4, column=1)
         self.player2 = tk.StringVar(self.right_frame)
-        self.player2_dropdown = tk.OptionMenu(self.right_frame, self.player2, *["random", "grid", "circle", "line", "longest Delaunay edge"])
+        self.player2_dropdown = tk.OptionMenu(self.right_frame, self.player2, *["random", "grid", "circle", "line", "longest Delaunay edge", "largest Voronoi face"])
         self.player2.set(self.game.settings['player2'])
         self.player2_dropdown.grid(row=5, column=1)
 
