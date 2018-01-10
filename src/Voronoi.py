@@ -101,7 +101,7 @@ def computeVoronoi(input_triangles, screen_width, screen_height):
                 # intersection between voronoi edge and delaunay edge
                 delaunay_intersect = ((edge[0].x + edge[1].x) / 2, (edge[0].y + edge[1].y) / 2)
                 # Change direction of the voronoi edge if it is outside the triangle and the longest edge
-                if not Delaunay.pointInTriangle(Point(center[0], center[1], ''), triangles[0]) and edge == get_longest_edge(triangles[0]):
+                if not pointInTriangle(center[0], center[1], triangles[0]) and edge == get_longest_edge(triangles[0]):
                     delaunay_intersect = (center[0] + 2 * (center[0] - delaunay_intersect[0]), center[1] + 2 * (center[1] - delaunay_intersect[1]))
                 if not (0 <= center[0] <= screen_width and 0 <= center[1] <= screen_height):
                     if not (0 <= delaunay_intersect[0] <= screen_width and 0 <= delaunay_intersect[1] <= screen_height):
@@ -173,3 +173,11 @@ def get_area_percentages(faces, screen_width, screen_height):
     return areas
 
 
+def sign(px, py, p1, p2):
+    return (px - p2.x) * (p1.y - p2.y) - (p1.x - p2.x) * (py - p2.y)
+
+def pointInTriangle(px, py, t):
+    b1 = sign(px, py, t[0], t[1]) < 0
+    b2 = sign(px, py, t[1], t[2]) < 0
+    b3 = sign(px, py, t[2], t[0]) < 0
+    return (b1 == b2) and (b2 == b3)
