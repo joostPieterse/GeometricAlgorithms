@@ -78,11 +78,11 @@ class View(tk.Tk):
         tk.Label(self.right_frame, text="Select player 1 (red): ").grid(row=4, column=0)
         tk.Label(self.right_frame, text="Select player 2 (blue): ").grid(row=5, column=0)
         self.player1 = tk.StringVar(self.right_frame)
-        self.player1_dropdown = tk.OptionMenu(self.right_frame, self.player1, *["random", "grid"])
+        self.player1_dropdown = tk.OptionMenu(self.right_frame, self.player1, *["random", "grid", "circle", "line"])
         self.player1.set(self.game.settings['player1'])
         self.player1_dropdown.grid(row=4, column=1)
         self.player2 = tk.StringVar(self.right_frame)
-        self.player2_dropdown = tk.OptionMenu(self.right_frame, self.player2, *["random", "grid"])
+        self.player2_dropdown = tk.OptionMenu(self.right_frame, self.player2, *["random", "grid", "circle", "line", "longest Delaunay edge"])
         self.player2.set(self.game.settings['player2'])
         self.player2_dropdown.grid(row=5, column=1)
 
