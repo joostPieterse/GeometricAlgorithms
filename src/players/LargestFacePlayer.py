@@ -1,7 +1,11 @@
+from random import uniform
+
 import Voronoi
 import math
 
 import sys
+
+from Point import Point
 
 
 class LargestFacePlayer:
@@ -10,9 +14,11 @@ class LargestFacePlayer:
         self.voronoi_diagram = voronoi_diagram
 
     def ccw(self, point1, point2, point3):
-        return (point3.y - point1.y) * (point2.x - point1.x) > (point2.y - point1.y) * (point3.x - point1.x)
+        print("ccw", point1, point2, point3)
+        return (point3[1] - point1[1]) * (point2[0] - point1[0]) > (point2[1] - point1[1]) * (point3[0] - point1[0])
 
     def is_intersecting(self, edge1, edge2):
+        print("is_intersecting", edge1, edge2)
         return self.ccw(edge1[0], edge2[0], edge2[1]) != self.ccw(edge1[1], edge2[0], edge2[1]) and \
                self.ccw(edge1[0], edge1[1], edge2[0]) != self.ccw(edge1[0], edge1[1], edge2[1])
 
@@ -35,7 +41,8 @@ class LargestFacePlayer:
         for point in points:
             if len(result) >= number_of_points:
                 break
-            face = self.voronoi_diagram[point]
+            face = [p for p in self.voronoi_diagram[point]]
+            face.sort(key=lambda p: math.atan2(point.y - p[1], point.x - p[0]))
             # Candidate line that are perpendicular to a Voronoi edge and that go through the Delaunay point
             candidates = {}
             for i in range(len(face)):
@@ -70,9 +77,12 @@ class LargestFacePlayer:
             result_line2 = ((point.x, point.y), (point.x - multiplier * (e[1][0]-e[0][0]), point.y - multiplier * (e[1][1]-e[0][1])))
             for voronoi_edge in candidates:
                 if self.is_intersecting(result_line1, voronoi_edge):
-                    intersect_voronoi1 = 
-
-
-
-
+                    intersect_voronoi1 = self.get_intersection(result_line1, voronoi_edge)
+                    intersect_voronoi2 = self.get_intersection(result_line2, voronoi_edge)
+            best_intersect = intersect_voronoi1
+            if self.get_length(((point.x, point.y), intersect2)) > self.get_length(((point.x, point.y), intersect1)):
+                best_intersect = intersect_voronoi2
+            xdiff = best_intersect[0] - point.x
+            ydiff = best_intersect[1] - point.y
+            result.append(Point(point.x + uniform(0.0000001*xdiff,0.001*xdiff), Point(point.y + uniform(0.0000001*ydiff,0.001*ydiff), self.color)))
         return result
