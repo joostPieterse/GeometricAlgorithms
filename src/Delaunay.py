@@ -1,6 +1,7 @@
 import math
 
 from Point import Point
+from Triangle import Triangle
 
 # Used for pointInTriangle()
 def sign(q, p1, p2):
@@ -9,9 +10,9 @@ def sign(q, p1, p2):
 
 # Checks whether or not a point p is in a triangle t
 def pointInTriangle(p, t):
-    b1 = sign(p, t[0], t[1]) < 0
-    b2 = sign(p, t[1], t[2]) < 0
-    b3 = sign(p, t[2], t[0]) < 0
+    b1 = sign(p, t.p0, t.p1) < 0
+    b2 = sign(p, t.p1, t.p2) < 0
+    b3 = sign(p, t.p2, t.p0) < 0
     return (b1 == b2) and (b2 == b3)
 
 
@@ -48,16 +49,16 @@ def getExtremes(points):
 # from the extreme coordinates
 def initializeT(points):
     # Create array of points T
-    p = []
     t = []
-
+    d = {}
+    
     # Find the extreme coordinates in points
     extremes = getExtremes(points)
     minx = extremes[0]
     maxx = extremes[1]
     miny = extremes[2]
     maxy = extremes[3]
-
+    
     # Add three points for the bounding triangle
     midx = (minx + maxx) / 2
     midy = (miny + maxy) / 2
@@ -66,13 +67,16 @@ def initializeT(points):
     p0 = Point(-100000, -100000, -1)
     p1 = Point(100000, -100000, -1)
     p2 = Point(0, 100000, -1)
-    p.append(p0)
-    p.append(p1)
-    p.append(p2)
-    t.append((p0, p1, p2))
-
+    tr = Triangle(p0, p1, p2)
+    t.append(tr)
+    
+    # Update the dictionary
+    d[(p0, p1)] = [tr]
+    d[(p1, p2)] = [tr]
+    d[(p2, p0)] = [tr]
+    
     # Return T
-    return p, t
+    return t, d
 
 
 # Computes the angle at p1 from the x-axis to p2
@@ -103,23 +107,9 @@ def minimumAngle(p1, p2, p3):
 def ccw(a, b, c):
     return (c.y-a.y) * (b.x-a.x) > (b.y-a.y) * (c.x-a.x)
 
-def intersect(p1, p2, t, f1, f2):
-    if ccw(p1, f1, f2) != ccw(p2, f1, f2) and ccw(p1, p2, f1) != ccw(p1, p2, f2):
-        #print("Intersection: ", p1, p2, f1, f2)
+def intersect(p1, p2, q1, q2, t):
+    if ccw(p1, q1, q2) != ccw(p2, q1, q2) and ccw(p1, p2, q1) != ccw(p1, p2, q2):
         return True
-    return False
-    
-    for tr in t:
-        for i in range(0, 2):
-            q1 = tr[i]
-            q2 = tr[(i+1) % 3]
-            if p1 == q1 or p1 == q2 or p2 == q1 or p2 == q2:
-                continue
-            if q1 == f1 or q1 == f2 or q2 == f1 or q2 == f2:
-                continue
-            if ccw(p1, q1, q2) != ccw(p2, q1, q2) and ccw(p1, p2, q1) != ccw(p1, p2, q2):
-                #print("Intersection: ", p1, p2, q1, q2)
-                return True
     return False
 
 def rem(t, p1, p2, p3):
@@ -146,100 +136,152 @@ def rem(t, p1, p2, p3):
     print("Rem: Triangle not found")
     print("---")
 
-# Legalizes an edge (p1, p2) in a triangulation t, given the third
-# point of the triangle including (p1, p2)
-def legalizeEdge(p1, p2, t, point):
+def edgeOnTriangle(p0, p1, triangle):
+    if triangle.p0 == p0 and triangle.p1 == p1: return triangle.p2
+    if triangle.p0 == p0 and triangle.p2 == p1: return triangle.p1
+    if triangle.p1 == p0 and triangle.p0 == p1: return triangle.p2
+    if triangle.p1 == p0 and triangle.p2 == p1: return triangle.p0
+    if triangle.p2 == p0 and triangle.p0 == p1: return triangle.p1
+    if triangle.p2 == p0 and triangle.p1 == p1: return triangle.p0
+    return False
+
+# Legalizes an edge (p0, p1) in a triangulation t, given the third
+# point of the triangle including (p0, p1)
+def legalizeEdge(p0, p1, p2, t, d):
+    # Find two triangles connected to edge (p0, p1)
+    triangles = d[(p0, p1)] if (p0, p1) in d else d[(p1, p0)]
     q1 = -1
-    for tr in t:
-        if tr[0] == p1 and tr[1] == p2:
-            q1 = tr[2]
-        if tr[0] == p2 and tr[1] == p1:
-            q1 = tr[2]
-        if tr[1] == p1 and tr[2] == p2:
-            q1 = tr[0]
-        if tr[1] == p2 and tr[2] == p1:
-            q1 = tr[0]
-        if tr[2] == p1 and tr[0] == p2:
-            q1 = tr[1]
-        if tr[2] == p2 and tr[0] == p1:
-            q1 = tr[1]
-    
-    if q1 == -1:
-        return
-    
     q2 = -1
-    for tr in t:
-        if tr[0] == p1 and tr[1] == p2 and tr[2] != q1:
-            q2 = tr[2]
-        if tr[0] == p2 and tr[1] == p1 and tr[2] != q1:
-            q2 = tr[2]
-        if tr[1] == p1 and tr[2] == p2 and tr[0] != q1:
-            q2 = tr[0]
-        if tr[1] == p2 and tr[2] == p1 and tr[0] != q1:
-            q2 = tr[0]
-        if tr[2] == p1 and tr[0] == p2 and tr[1] != q1:
-            q2 = tr[1]
-        if tr[2] == p2 and tr[0] == p1 and tr[1] != q1:
-            q2 = tr[1]
+    t1 = -1
+    t2 = -1
+    for tr in triangles:
+        pp2 = edgeOnTriangle(p0, p1, tr)
+        if pp2 != False and q1 == -1:
+            q1 = pp2
+            t1 = tr
+            continue
+        if pp2 != False and q1 != -1:
+            q2 = pp2
+            t2 = tr
     
-    if q2 == -1:
+    # Do nothing if the edge does not have a second triangle
+    if q1 == -1 or q2 == -1:
         return
     
     # Compute angles
-    angle1a = minimumAngle(p1, p2, q1)
-    angle1b = minimumAngle(p1, p2, q2)
-    angle2a = minimumAngle(p1, q1, q2)
-    angle2b = minimumAngle(p2, q1, q2)
-    angle1 = min(angle1a, angle1b)
-    angle2 = min(angle2a, angle2b)
-    #print(p1, p2, q1, q2, angle1, angle2)
-    if angle1 < angle2 and intersect(q2, q1, t, p1, p2):
+    angleoriga = minimumAngle(p0, p1, q1)
+    angleorigb = minimumAngle(p0, p1, q2)
+    angleflipa = minimumAngle(p0, q1, q2)
+    angleflipb = minimumAngle(p1, q1, q2)
+    angleorig = min(angleoriga, angleorigb)
+    angleflip = min(angleflipa, angleflipb)
+    if angleorig < angleflip and intersect(p0, p1, q1, q2, t):
         # Replace edge (p1, p2) with edge (point, opposite)
-        #print("Replace ", p1, p2, q2, "and", p1, p2, q1, " with ", q2, q1, p1, " and ", q2, q1, p2)
-        rem(t, p1, p2, q1)
-        rem(t, p1, p2, q2)
-        t.append((p1, q2, q1))
-        t.append((p2, q2, q1))
-
+        removeTriangle(t1, t, d)
+        removeTriangle(t2, t, d)
+        addTriangle(p0, q1, q2, t, d)
+        addTriangle(p1, q1, q2, t, d)
+        
         # Legalize the new triangles
-        if point == q1:
-            legalizeEdge(p1, q2, t, point)
-            legalizeEdge(p2, q2, t, point)
+        if p2 == q1:
+            legalizeEdge(p0, q2, q1, t, d)
+            legalizeEdge(p1, q2, q1, t, d)
         else:
-            legalizeEdge(p1, q1, t, point)
-            legalizeEdge(p2, q1, t, point)
+            legalizeEdge(p0, q1, q2, t, d)
+            legalizeEdge(p1, q1, q2, t, d)
+
+def pointLocation(point, t, d):
+    for triangle in t:
+        if pointInTriangle(point, triangle):
+            return triangle
+    print("---")
+    print("PointLocation: Point does not lie in any triangle")
+    print("---")
+
+def removeTriangle(triangle, t, d):
+    # Get the three points of the triangle to remove
+    p0 = triangle.p0
+    p1 = triangle.p1
+    p2 = triangle.p2
+    
+    # Remove the old triangle from the dictionary
+    if (p0, p1) in d:
+        if triangle in d[(p0, p1)]: d[(p0, p1)].remove(triangle)
+    if (p1, p0) in d:
+        if triangle in d[(p1, p0)]: d[(p1, p0)].remove(triangle)
+    if (p1, p2) in d:
+        if triangle in d[(p1, p2)]: d[(p1, p2)].remove(triangle)
+    if (p2, p1) in d:
+        if triangle in d[(p2, p1)]: d[(p2, p1)].remove(triangle)
+    if (p2, p0) in d:
+        if triangle in d[(p2, p0)]: d[(p2, p0)].remove(triangle)
+    if (p0, p2) in d:
+        if triangle in d[(p0, p2)]: d[(p0, p2)].remove(triangle)
+    
+    # Remove the old triangle from the triangulation
+    if triangle in t: t.remove(triangle)
+
+def addToDictionary(p0, p1, triangle, d):
+    if (p0, p1) in d:
+        d[(p0, p1)].append(triangle)
+        return
+    if (p1, p0) in d:
+        d[(p1, p0)].append(triangle)
+        return
+    d[(p0, p1)] = [triangle]
+
+def addTriangle(p0, p1, p2, t, d):
+    # Create a new triangle
+    triangle = Triangle(p0, p1, p2)
+    
+    # Add the triangle to t
+    t.append(triangle)
+    
+    # Add the three edges to the dictionary
+    addToDictionary(p0, p1, triangle, d)
+    addToDictionary(p1, p2, triangle, d)
+    addToDictionary(p2, p0, triangle, d)
 
 # Adds a point to the triangulation, where the given point is in
 # the given triangle
-def addToTriangulation(point, triangle, t):
+def addToTriangulation(point, t, d):
+    # Search in which triangle point lies
+    triangle = pointLocation(point, t, d)
+    
     # Remove old triangle
-    t.remove(triangle)
+    removeTriangle(triangle, t, d)
 
     # Add 3 new triangles
-    t.append((triangle[0], triangle[1], point))
-    t.append((triangle[1], triangle[2], point))
-    t.append((triangle[2], triangle[0], point))
+    addTriangle(triangle.p0, triangle.p1, point, t, d)
+    addTriangle(triangle.p1, triangle.p2, point, t, d)
+    addTriangle(triangle.p2, triangle.p0, point, t, d)
     
     # Legalize triangles
-    legalizeEdge(triangle[0], triangle[1], t, point)
-    legalizeEdge(triangle[1], triangle[2], t, point)
-    legalizeEdge(triangle[2], triangle[0], t, point)
+    legalizeEdge(triangle.p0, triangle.p1, point, t, d)
+    legalizeEdge(triangle.p1, triangle.p2, point, t, d)
+    legalizeEdge(triangle.p2, triangle.p0, point, t, d)
+
+def isMainTriangle(triangle):
+    if triangle.p0.x < -90000: return False
+    if triangle.p0.x >  90000: return False
+    if triangle.p0.y >  90000: return False
+    if triangle.p1.x < -90000: return False
+    if triangle.p1.x >  90000: return False
+    if triangle.p1.y >  90000: return False
+    if triangle.p2.x < -90000: return False
+    if triangle.p2.x >  90000: return False
+    if triangle.p2.y >  90000: return False
+    return True
 
 # Computes the Delaunay triangulation of a given array of points
 def computeDelaunay(points):
     # Initialize triangle T with p0, p1, p2 containing P
-    p, t = initializeT(points)
-
+    t, d = initializeT(points)
+    
     # Loop through all points
     for point in points:
-        # Add point to T
-        p.append(point)
-
-        # Add delaunay edges to point
-        for triangle in t:
-            if pointInTriangle(point, triangle):
-                addToTriangulation(point, triangle, t)
-                break
+        # Add point to the triangulation
+        addToTriangulation(point, t, d)
     
     # Discard p0, p1, p2 in T and its edges
     extremes = getExtremes(points)
@@ -249,16 +291,8 @@ def computeDelaunay(points):
     maxy = extremes[3]
     newt = []
     for triangle in t:
-        b = True
-        for i in range(0, 2):
-            if triangle[i].x < -90000:
-                b = False
-            if triangle[i].x > 90000:
-                b = False
-            if triangle[i].y > 90000:
-                b = False
-        if b:
-            newt.append(triangle)
+        if isMainTriangle(triangle):
+            newt.append((triangle.p0, triangle.p1, triangle.p2))
 
     # Return T
     return newt

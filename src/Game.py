@@ -9,6 +9,7 @@ import Delaunay
 import Voronoi
 import logging
 import sys
+from random import shuffle
 
 logging.basicConfig(level=logging.INFO, stream=sys.stdout, format="%(asctime)s - %(message)s")
 
@@ -50,7 +51,9 @@ class Game:
         points2 = player2.get_points(number_of_points=self.settings['number_of_points2'], settings=self.settings,
                                      points=points1)
         self.points = points1 + points2
+        shuffle(self.points)
         logging.info("Compute Delaunay triangulation")
+
         self.delaunay_triangulation = Delaunay.computeDelaunay(self.points)
         logging.info("Compute Voronoi diagram")
         self.voronoi_diagram = Voronoi.computeVoronoi(self.delaunay_triangulation, self.settings['width'], self.settings['height'])
