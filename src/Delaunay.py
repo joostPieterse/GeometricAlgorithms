@@ -87,7 +87,9 @@ def computeAngle(p1, p2):
     # Compute and return the angle at p1
     if d == 0:
         return 0
-    angle = math.asin(abs(p2.y - p1.y) / d)
+    v = abs(p2.y - p1.y) / d
+    v = max(-1, min(v, 1))
+    angle = math.asin(v)
     return angle
 
 
@@ -97,9 +99,15 @@ def minimumAngle(p1, p2, p3):
     p12 = math.sqrt((p2.x - p1.x) * (p2.x - p1.x) + (p2.y - p1.y) * (p2.y - p1.y))
     p23 = math.sqrt((p3.x - p2.x) * (p3.x - p2.x) + (p3.y - p2.y) * (p3.y - p2.y))
     p31 = math.sqrt((p1.x - p3.x) * (p1.x - p3.x) + (p1.y - p3.y) * (p1.y - p3.y))
-    angle1 = math.acos((p12*p12 + p23*p23 - p31*p31) / (2*p12*p23))
-    angle2 = math.acos((p23*p23 + p31*p31 - p12*p12) / (2*p23*p31))
-    angle3 = math.acos((p31*p31 + p12*p12 - p23*p23) / (2*p31*p12))
+    v1 = (p12*p12 + p23*p23 - p31*p31) / (2*p12*p23)
+    v2 = (p23*p23 + p31*p31 - p12*p12) / (2*p23*p31)
+    v3 = (p31*p31 + p12*p12 - p23*p23) / (2*p31*p12)
+    v1 = max(-1, min(v1, 1))
+    v2 = max(-1, min(v2, 1))
+    v3 = max(-1, min(v3, 1))
+    angle1 = math.acos(v1)
+    angle2 = math.acos(v2)
+    angle3 = math.acos(v3)
 
     # Return the minimum of the three angles
     return min(angle1, angle2, angle3)
