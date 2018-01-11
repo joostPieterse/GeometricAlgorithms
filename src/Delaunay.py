@@ -1,4 +1,5 @@
 import math
+import random
 
 from Point import Point
 from Triangle import Triangle
@@ -190,13 +191,69 @@ def legalizeEdge(p0, p1, p2, t, d):
             legalizeEdge(p0, q1, q2, t, d)
             legalizeEdge(p1, q1, q2, t, d)
 
-def pointLocation(point, t, d):
-    for triangle in t:
-        if pointInTriangle(point, triangle):
-            return triangle
-    print("---")
-    print("PointLocation: Point does not lie in any triangle")
-    print("---")
+def isTriangle(t0, t1):
+    if t1 == None: return False
+    if t0.p0 == t1.p0 and t0.p1 == t1.p1 and t0.p2 == t1.p2: return True
+    if t0.p0 == t1.p0 and t0.p1 == t1.p2 and t0.p2 == t1.p1: return True
+    if t0.p0 == t1.p1 and t0.p1 == t1.p0 and t0.p2 == t1.p2: return True
+    if t0.p0 == t1.p1 and t0.p1 == t1.p2 and t0.p2 == t1.p0: return True
+    if t0.p0 == t1.p2 and t0.p1 == t1.p0 and t0.p2 == t1.p1: return True
+    if t0.p0 == t1.p2 and t0.p1 == t1.p1 and t0.p2 == t1.p0: return True
+    return False
+
+def getPoint(triangle, p0, p1):
+    if triangle.p0 == p0 and triangle.p1 == p1: return triangle.p2
+    if triangle.p0 == p0 and triangle.p2 == p1: return triangle.p1
+    if triangle.p1 == p0 and triangle.p0 == p1: return triangle.p2
+    if triangle.p1 == p0 and triangle.p2 == p1: return triangle.p0
+    if triangle.p2 == p0 and triangle.p0 == p1: return triangle.p1
+    if triangle.p2 == p0 and triangle.p1 == p1: return triangle.p0
+
+def pointAboveLine(line0, line1, point):
+    # Verify that the line is not vertical
+    if line0.x == line1.x:
+        return point.x > line.x
+    
+    # Compute the slope of the line
+    m = (line1.y - line0.y) / (line1.x - line0.x)
+    k = line1.y - m*line1.x
+    
+    # Check if the point is above or below the line
+    if m * point.x + k < point.y:
+        # Point is above the line
+        return True
+    else:
+        # Point is below the line
+        return False
+
+def pointLocation(point, p0, p1, p2, triangle, prevtriangle, t, d):
+    #for triangle in t:
+    #    if pointInTriangle(point, triangle):
+    #        return triangle
+    #print("---")
+    #print("PointLocation: Point does not lie in any triangle")
+    #print("---")
+    
+    # Find an edge that separates point from the triangle
+    print(triangle)
+    print(point)
+    if pointAboveLine(p1, p2, point) == pointAboveLine(p1, p2, p0):
+        # Find the other triangle connected to edge (p1, p2)
+        triangles = d[(p1, p2)] if (p1, p2) in d else d[(p2, p1)]
+        for tr in triangles:
+            if not isTriangle(triangle, tr) and not isTriangle(tr, prevtriangle):
+                q = getPoint(tr, p1, p2)
+                return pointLocation(point, p1, p2, q, tr, triangle, t, d)
+    if pointAboveLine(p0, p2, point) == pointAboveLine(p0, p2, p1):
+        # Find the other triangle connected to edge (p0, p2)
+        triangles = d[(p0, p2)] if (p0, p2) in d else d[(p2, p0)]
+        for tr in triangles:
+            if not isTriangle(triangle, tr) and not isTriangle(tr, prevtriangle):
+                q = getPoint(tr, p0, p2)
+                return pointLocation(point, p0, p2, q, tr, triangle, t, d)
+    
+    # No edge separates point from the triangle, so point is in this triangle
+    return triangle
 
 def removeTriangle(triangle, t, d):
     # Get the three points of the triangle to remove
@@ -246,7 +303,7 @@ def addTriangle(p0, p1, p2, t, d):
 # the given triangle
 def addToTriangulation(point, t, d):
     # Search in which triangle point lies
-    triangle = pointLocation(point, t, d)
+    triangle = pointLocation(point, t[0].p0, t[0].p1, t[0].p2, t[0], None, t, d)
     
     # Remove old triangle
     removeTriangle(triangle, t, d)
@@ -293,6 +350,6 @@ def computeDelaunay(points):
     for triangle in t:
         if isMainTriangle(triangle):
             newt.append((triangle.p0, triangle.p1, triangle.p2))
-
+    
     # Return T
     return newt
