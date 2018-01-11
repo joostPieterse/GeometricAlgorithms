@@ -1,6 +1,7 @@
 from Point import Point
 from View import View
 from players.GridPlayer import GridPlayer
+from players.LargestFacePlayer import LargestFacePlayer
 from players.LongestEdgePlayer import LongestEdgePlayer
 from players.RandomPlayer import RandomPlayer
 from players.CirclePlayer import CirclePlayer
@@ -37,6 +38,7 @@ class Game:
         logging.info("Get player 1's points")
         points1 = player1.get_points(number_of_points=self.settings['number_of_points1'], settings=self.settings)
         delaunay_triangulation_player1 = Delaunay.computeDelaunay(points1)
+        voronoi_player1 = Voronoi.computeVoronoi(delaunay_triangulation_player1, self.settings['width'], self.settings['height'])
         if self.settings['player2'] == "grid":
             player2 = GridPlayer()
         elif self.settings['player2'] == "circle":
@@ -45,6 +47,8 @@ class Game:
             player2 = LinePlayer()
         elif self.settings['player2'] == "longest Delaunay edge":
             player2 = LongestEdgePlayer(delaunay_triangulation_player1)
+        elif self.settings['player2'] == "largest Voronoi face":
+            player2 = LargestFacePlayer(voronoi_player1)
         else:
             player2 = RandomPlayer()
         logging.info("Get player 2's points")
