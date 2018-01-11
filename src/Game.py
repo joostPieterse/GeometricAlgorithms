@@ -70,13 +70,22 @@ class Game:
 
 if __name__ == "__main__":
     initial_settings = {
-        "width": 1500,
-        "height": 800,
+        "width": 1000,
+        "height": 600,
         "number_of_points1": 10,
         "number_of_points2": 8,
         "player1": "random",
-        "player2": "random"
+        "player2": "longest Delaunay edge"
     }
-    game = Game(initial_settings)
-    view = View(game)
-    view.mainloop()
+    totalAreaBlue = 0
+    averageAreaBlue = 0
+    for i in range (0, 100):
+        game = Game(initial_settings)
+        game.start()
+        totalAreaBlue = totalAreaBlue + game.voronoi_areas["blue"]
+        averageAreaBlue = totalAreaBlue / 100
+  #      print("Areas:", game.voronoi_areas)
+  #      print("Total Area blue: ", totalAreaBlue)
+        print("Average blue area: ", averageAreaBlue)
+    #view = View(game)
+    #view.mainloop()

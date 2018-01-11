@@ -33,6 +33,7 @@ class LongestEdgePlayer:
         bottom_right = max(width,height) * 2
         bottom_left = max(width,height) * 2
 
+        # compute which points are closest to the corners of the screen
         for delaunay_point in delaunay_points:
             if self.get_edge_length(delaunay_point.x, delaunay_point.y, 0, 0) < top_left:
                 top_left = self.get_edge_length(delaunay_point.x, delaunay_point.y, 0, 0)
@@ -50,6 +51,7 @@ class LongestEdgePlayer:
                 bottom_right = self.get_edge_length(delaunay_point.x, delaunay_point.y, width, height)
                 point_bottom_right = delaunay_point
 
+        # add edges to the corner of the screen
         delaunay_edges.add((point_top_left, Point(0,0,"")))
         delaunay_edges.add((point_top_right, Point(width,0,"")))
         delaunay_edges.add((point_bottom_left, Point(0,height,"")))
@@ -59,14 +61,19 @@ class LongestEdgePlayer:
             longest_edge_length = -1
             for delaunay_edge in delaunay_edges:
                 edge_length = self.get_edge_length(delaunay_edge[0].x, delaunay_edge[0].y, delaunay_edge[1].x, delaunay_edge[1].y)
-                if (edge_length > longest_edge_length):
+                if len(delaunay_edges) == 1:
+                    newx = uniform(0, width)
+                    newy = uniform(0, height)
+                elif (edge_length > longest_edge_length):
                     longest_edge_length = edge_length
-                    longest_edge = delaunay_edge
-                    newx, newy = self.get_position(delaunay_edge[0].x, delaunay_edge[0].y, delaunay_edge[1].x, delaunay_edge[1].y)
-            print("Appended: ", newx, newy)
+                    newx, newy, x_point, y_point = self.get_position(delaunay_edge[0].x, delaunay_edge[0].y, delaunay_edge[1].x, delaunay_edge[1].y)
             point_set.append(Point(newx,newy,self.color))
-            print("Removed: ", longest_edge)
-            delaunay_edges.remove(longest_edge)
+            delaunay_new_edges = delaunay_edges.copy()
+            if len(delaunay_edges) > 1:
+                for delaunay_edge2 in delaunay_edges:
+                    if len(delaunay_new_edges) > 1 and (delaunay_edge2[0].x == x_point or delaunay_edge2[1].x == x_point or delaunay_edge2[0].y == y_point or delaunay_edge2[1].y == y_point):
+                        delaunay_new_edges.remove(delaunay_edge2)
+                delaunay_edges = delaunay_new_edges.copy()
         return [point_set[i] for i in range(number_of_points)]
 
     def get_edge_length(self, x1, y1, x2, y2):
@@ -80,12 +87,13 @@ class LongestEdgePlayer:
         if(x1 <= x2):
             newx = 0.001 * xdif + x1 + uniform(0.0000001*xdif,0.001*xdif)
             newy = 0.001 * ydif + y1 + uniform(0.0000001*ydif,0.001*ydif)
+            return newx, newy, x1, y1
+
         if (x1 > x2):
             newx = 0.001 * xdif + x2 + uniform(0.0000001*xdif,0.001*xdif)
             newy = 0.001 * ydif + y2 + uniform(0.0000001*ydif,0.001*ydif)
-        return newx, newy
+            return newx, newy, x2, y2
 
-        # Add edges to the corner of the screen
         points = []
 
         return points
