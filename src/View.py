@@ -26,6 +26,7 @@ class View(tk.Tk):
 
         self.game.settings['player1'] = self.player1.get()
         self.game.settings['player2'] = self.player2.get()
+        self.game.settings['point_loc_method'] = self.point_loc_method.get()
         self.game.start()
         self.draw_points(self.game.points)
         #self.draw_delaunay(self.game.delaunay_triangulation)
@@ -86,14 +87,21 @@ class View(tk.Tk):
         self.player2.set(self.game.settings['player2'])
         self.player2_dropdown.grid(row=5, column=1)
 
+        self.point_loc_method = tk.StringVar(self.right_frame)
+        self.point_loc_method_dropdown = tk.OptionMenu(self.right_frame, self.point_loc_method, *["O(n)", "O(log n)"])
+        self.point_loc_method.set(self.game.settings['point_loc_method'])
+        self.point_loc_method_dropdown.grid(row=6, column=1)
+        tk.Label(self.right_frame, text="Select point location method: ").grid(row=6, column=0)
+        tk.Label(self.right_frame, text="(O(log n) is more prone to collinearity due to rounding errors)").grid(row=7)
+
         self.start_button = tk.Button(self.right_frame, text="Start game", command=self.start)
-        self.start_button.grid(row=6)
+        self.start_button.grid(row=8)
         self.prev_button = tk.Button(self.right_frame, text="Previous", command=self.prev)
-        self.prev_button.grid(row=7)
+        self.prev_button.grid(row=9)
         self.red_area_label = tk.Label(self.right_frame, text="red area: %s" % 0, fg="red")
-        self.red_area_label.grid(row=8, pady=(100, 0))
+        self.red_area_label.grid(row=10, pady=(100, 0))
         self.blue_area_label = tk.Label(self.right_frame, text="blue area: %s" % 0, fg="blue")
-        self.blue_area_label.grid(row=9)
+        self.blue_area_label.grid(row=11)
 
     def _resize(self):
         try:

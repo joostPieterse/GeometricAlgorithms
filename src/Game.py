@@ -37,7 +37,7 @@ class Game:
 
         logging.info("Get player 1's points")
         points1 = player1.get_points(number_of_points=self.settings['number_of_points1'], settings=self.settings)
-        delaunay_triangulation_player1 = Delaunay.computeDelaunay(points1)
+        delaunay_triangulation_player1 = Delaunay.computeDelaunay(points1, self.settings['point_loc_method'])
         voronoi_player1 = Voronoi.computeVoronoi(delaunay_triangulation_player1, self.settings['width'], self.settings['height'])
         if self.settings['player2'] == "grid":
             player2 = GridPlayer()
@@ -58,7 +58,7 @@ class Game:
         shuffle(self.points)
         logging.info("Compute Delaunay triangulation")
 
-        self.delaunay_triangulation = Delaunay.computeDelaunay(self.points)
+        self.delaunay_triangulation = Delaunay.computeDelaunay(self.points, self.settings['point_loc_method'])
         logging.info("Compute Voronoi diagram")
         self.voronoi_diagram = Voronoi.computeVoronoi(self.delaunay_triangulation, self.settings['width'], self.settings['height'])
         self.voronoi_areas = Voronoi.get_area_percentages(self.voronoi_diagram, self.settings['width'], self.settings['height'])
@@ -75,17 +75,18 @@ if __name__ == "__main__":
         "number_of_points1": 10,
         "number_of_points2": 8,
         "player1": "random",
-        "player2": "longest Delaunay edge"
+        "player2": "longest Delaunay edge",
+        "point_loc_method": "O(n)"
     }
     totalAreaBlue = 0
     averageAreaBlue = 0
-    for i in range (0, 100):
-        game = Game(initial_settings)
-        game.start()
-        totalAreaBlue = totalAreaBlue + game.voronoi_areas["blue"]
-        averageAreaBlue = totalAreaBlue / 100
-  #      print("Areas:", game.voronoi_areas)
-  #      print("Total Area blue: ", totalAreaBlue)
-        print("Average blue area: ", averageAreaBlue)
-    #view = View(game)
-    #view.mainloop()
+    game = Game(initial_settings)
+    #for i in range (0, 100):
+    #    game.start()
+    #    totalAreaBlue = totalAreaBlue + game.voronoi_areas["blue"]
+    #    averageAreaBlue = totalAreaBlue / 100
+  # #     print("Areas:", game.voronoi_areas)
+  # #     print("Total Area blue: ", totalAreaBlue)
+    #    print("Average blue area: ", averageAreaBlue)
+    view = View(game)
+    view.mainloop()

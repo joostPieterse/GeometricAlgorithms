@@ -52,14 +52,14 @@ def initializeT(points):
     # Create array of points T
     t = []
     d = {}
-    
+
     # Find the extreme coordinates in points
     extremes = getExtremes(points)
     minx = extremes[0]
     maxx = extremes[1]
     miny = extremes[2]
     maxy = extremes[3]
-    
+
     # Add three points for the bounding triangle
     midx = (minx + maxx) / 2
     midy = (miny + maxy) / 2
@@ -70,12 +70,12 @@ def initializeT(points):
     p2 = Point(0, 100000, -1)
     tr = Triangle(p0, p1, p2)
     t.append(tr)
-    
+
     # Update the dictionary
     d[(p0, p1)] = [tr]
     d[(p1, p2)] = [tr]
     d[(p2, p0)] = [tr]
-    
+
     # Return T
     return t, d
 
@@ -182,11 +182,11 @@ def legalizeEdge(p0, p1, p2, t, d):
         if pp2 != False and q1 != -1:
             q2 = pp2
             t2 = tr
-    
+
     # Do nothing if the edge does not have a second triangle
     if q1 == -1 or q2 == -1:
         return
-    
+
     # Compute angles
     angleoriga = minimumAngle(p0, p1, q1)
     angleorigb = minimumAngle(p0, p1, q2)
@@ -200,7 +200,7 @@ def legalizeEdge(p0, p1, p2, t, d):
         removeTriangle(t2, t, d)
         addTriangle(p0, q1, q2, t, d)
         addTriangle(p1, q1, q2, t, d)
-        
+
         # Legalize the new triangles
         if p2 == q1:
             legalizeEdge(p0, q2, q1, t, d)
@@ -235,12 +235,12 @@ def getPoint(triangle, p0, p1):
 def pointAboveLine(line0, line1, point):
     # Verify that the line is not vertical
     if line0.x == line1.x:
-        return point.x > line.x
-    
+        return point.x > line1.x
+
     # Compute the slope of the line
     m = (line1.y - line0.y) / (line1.x - line0.x)
     k = line1.y - m*line1.x
-    
+
     # Check if the point is above or below the line
     if m * point.x + k < point.y:
         # Point is above the line
@@ -250,41 +250,41 @@ def pointAboveLine(line0, line1, point):
         return False
 
 # Returns the triangle in which a given point is located
-def pointLocation(point, p0, p1, p2, triangle, t, d):
-    #for tr in t:
-    #    if pointInTriangle(point, tr):
-    #        return tr
+def pointLocation(point, p0, p1, p2, triangle, t, d, pointLocationMethod):
+    if pointLocationMethod == "O(n)":
+        for tr in t:
+            if pointInTriangle(point, tr):
+                return tr
     #print("---")
     #print("PointLocation: Point does not lie in any triangle")
     #print("---")
-    
+
 	# The code below is an implementation of Point Location by walking
 	# through the triangulation, which is more efficient than the above
 	# code, which simply loops through all triangles and checks if the
 	# point is inside. However, the more efficient code below is prone
 	# to errors when three or more points are near colinear, because of
 	# rounding errors.
-	
+
     # Find an edge that separates point from the triangle
-    print(triangle)
-    print(point)
-    if pointAboveLine(p1, p2, point) != pointAboveLine(p1, p2, p0):
-        # Find the other triangle connected to edge (p1, p2)
-        triangles = d[(p1, p2)] if (p1, p2) in d else d[(p2, p1)]
-        for tr in triangles:
-            if not isTriangle(triangle, tr):
-                q = getPoint(tr, p1, p2)
-                return pointLocation(point, p1, p2, q, tr, t, d)
-    if pointAboveLine(p0, p2, point) != pointAboveLine(p0, p2, p1):
-        # Find the other triangle connected to edge (p0, p2)
-        triangles = d[(p0, p2)] if (p0, p2) in d else d[(p2, p0)]
-        for tr in triangles:
-            if not isTriangle(triangle, tr):
-                q = getPoint(tr, p0, p2)
-                return pointLocation(point, p0, p2, q, tr, t, d)
-    
-    # No edge separates point from the triangle, so point is in this triangle
-    return triangle
+    else:
+        if pointAboveLine(p1, p2, point) != pointAboveLine(p1, p2, p0):
+            # Find the other triangle connected to edge (p1, p2)
+            triangles = d[(p1, p2)] if (p1, p2) in d else d[(p2, p1)]
+            for tr in triangles:
+                if not isTriangle(triangle, tr):
+                    q = getPoint(tr, p1, p2)
+                    return pointLocation(point, p1, p2, q, tr, t, d, pointLocationMethod)
+        if pointAboveLine(p0, p2, point) != pointAboveLine(p0, p2, p1):
+            # Find the other triangle connected to edge (p0, p2)
+            triangles = d[(p0, p2)] if (p0, p2) in d else d[(p2, p0)]
+            for tr in triangles:
+                if not isTriangle(triangle, tr):
+                    q = getPoint(tr, p0, p2)
+                    return pointLocation(point, p0, p2, q, tr, t, d, pointLocationMethod)
+
+        # No edge separates point from the triangle, so point is in this triangle
+        return triangle
 
 # Removes a triangle, both from the triangle list and the dictionary
 def removeTriangle(triangle, t, d):
@@ -292,7 +292,7 @@ def removeTriangle(triangle, t, d):
     p0 = triangle.p0
     p1 = triangle.p1
     p2 = triangle.p2
-    
+
     # Remove the old triangle from the dictionary
     if (p0, p1) in d:
         if triangle in d[(p0, p1)]: d[(p0, p1)].remove(triangle)
@@ -306,7 +306,7 @@ def removeTriangle(triangle, t, d):
         if triangle in d[(p2, p0)]: d[(p2, p0)].remove(triangle)
     if (p0, p2) in d:
         if triangle in d[(p0, p2)]: d[(p0, p2)].remove(triangle)
-    
+
     # Remove the old triangle from the triangulation
     if triangle in t: t.remove(triangle)
 
@@ -324,10 +324,10 @@ def addToDictionary(p0, p1, triangle, d):
 def addTriangle(p0, p1, p2, t, d):
     # Create a new triangle
     triangle = Triangle(p0, p1, p2)
-    
+
     # Add the triangle to t
     t.append(triangle)
-    
+
     # Add the three edges to the dictionary
     addToDictionary(p0, p1, triangle, d)
     addToDictionary(p1, p2, triangle, d)
@@ -335,10 +335,10 @@ def addTriangle(p0, p1, p2, t, d):
 
 # Adds a point to the triangulation, where the given point is in
 # the given triangle
-def addToTriangulation(point, t, d):
+def addToTriangulation(point, t, d, pointLocationMethod):
     # Search in which triangle point lies
-    triangle = pointLocation(point, t[0].p0, t[0].p1, t[0].p2, t[0], t, d)
-    
+    triangle = pointLocation(point, t[0].p0, t[0].p1, t[0].p2, t[0], t, d, pointLocationMethod)
+
     # Remove old triangle
     removeTriangle(triangle, t, d)
 
@@ -346,7 +346,7 @@ def addToTriangulation(point, t, d):
     addTriangle(triangle.p0, triangle.p1, point, t, d)
     addTriangle(triangle.p1, triangle.p2, point, t, d)
     addTriangle(triangle.p2, triangle.p0, point, t, d)
-    
+
     # Legalize triangles
     legalizeEdge(triangle.p0, triangle.p1, point, t, d)
     legalizeEdge(triangle.p1, triangle.p2, point, t, d)
@@ -367,15 +367,15 @@ def isMainTriangle(triangle):
     return True
 
 # Computes the Delaunay triangulation of a given array of points
-def computeDelaunay(points):
+def computeDelaunay(points, pointLocationMethod):
     # Initialize triangle T with p0, p1, p2 containing P
     t, d = initializeT(points)
-    
+
     # Loop through all points
     for point in points:
         # Add point to the triangulation
-        addToTriangulation(point, t, d)
-    
+        addToTriangulation(point, t, d, pointLocationMethod)
+
     # Discard p0, p1, p2 in T and its edges
     extremes = getExtremes(points)
     minx = extremes[0]
@@ -386,6 +386,6 @@ def computeDelaunay(points):
     for triangle in t:
         if isMainTriangle(triangle):
             newt.append((triangle.p0, triangle.p1, triangle.p2))
-    
+
     # Return T
     return newt
