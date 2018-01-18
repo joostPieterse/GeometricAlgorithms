@@ -35,13 +35,6 @@ class View(tk.Tk):
         self.blue_area_label.configure(text="blue area: %s%%" % round(self.game.voronoi_areas['blue'], 2))
         logging.info("Done")
 
-
-    def prev(self):
-        self.screen.delete('all')
-        self.game.prev()
-        self.place_points(self.game.points)
-        self.draw_delaunay(self.game.delaunay_triangulation)
-
     def __init__(self, game):
         super().__init__()
         self.game = game
@@ -96,12 +89,10 @@ class View(tk.Tk):
 
         self.start_button = tk.Button(self.right_frame, text="Start game", command=self.start)
         self.start_button.grid(row=8)
-        self.prev_button = tk.Button(self.right_frame, text="Previous", command=self.prev)
-        self.prev_button.grid(row=9)
         self.red_area_label = tk.Label(self.right_frame, text="red area: %s" % 0, fg="red")
-        self.red_area_label.grid(row=10, pady=(100, 0))
+        self.red_area_label.grid(row=9, pady=(100, 0))
         self.blue_area_label = tk.Label(self.right_frame, text="blue area: %s" % 0, fg="blue")
-        self.blue_area_label.grid(row=11)
+        self.blue_area_label.grid(row=10)
 
     def _resize(self):
         try:

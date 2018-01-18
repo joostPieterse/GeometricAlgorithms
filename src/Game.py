@@ -64,10 +64,6 @@ class Game:
         self.voronoi_areas = Voronoi.get_area_percentages(self.voronoi_diagram, self.settings['width'], self.settings['height'])
 
 
-    def prev(self):
-        self.n = self.n - 1
-        self.delaunay_triangulation = Delaunay.computeDelaunay(self.points[0:self.n])
-
 if __name__ == "__main__":
     initial_settings = {
         "width": 1000,
